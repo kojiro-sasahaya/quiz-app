@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学習カレンダー</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #faf7f0;
+    --accent: #c84b31;
+    --muted: #8a8070;
+    --correct: #2d6a4f;
+    --card: #fff;
+    --border: #e0d8c8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  .back-link { display:inline-block; font-size:13px; color:var(--muted); text-decoration:none; margin-bottom:14px; }
+  .back-link:hover { color:var(--ink); }
+  .logo-deco { font-family:'Kaisei Decol',serif; font-size:12px; letter-spacing:.3em; color:var(--muted); margin-bottom:4px; }
+  h1 { font-family:'Kaisei Decol',serif; font-size:clamp(24px,4vw,32px); font-weight:700; margin-bottom:18px; }
+  h1 span { color:var(--accent); }
+
+  .unit-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .unit-tab {
+    padding:8px 18px; border:2px solid var(--border); border-radius:999px; background:var(--card);
+    font-size:14px; font-weight:700; color:var(--muted); cursor:pointer; transition:all .2s;
+  }
+  .unit-tab:hover { border-color:var(--accent); }
+  .unit-tab.selected { background:var(--ink); border-color:var(--ink); color:#fff; }
+
+  .summary-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .summary-card { background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:16px; text-align:center; }
+  .summary-card .num { font-family:'Kaisei Decol',serif; font-size:28px; font-weight:700; }
+  .summary-card .label { font-size:12px; color:var(--muted); margin-top:4px; }
+
+  .section { background:var(--card); border:1.5px solid var(--border); border-radius:16px; padding:18px; margin-bottom:18px; overflow-x:auto; }
+  .section-title { font-size:13px; font-weight:700; letter-spacing:.1em; color:var(--muted); margin-bottom:6px; }
+  .section-note { font-size:12px; color:var(--muted); margin-bottom:14px; }
+
+  table.matrix { border-collapse:collapse; font-size:13px; white-space:nowrap; }
+  table.matrix th, table.matrix td { border:1px solid var(--border); padding:6px 10px; text-align:center; }
+  table.matrix thead th { background:var(--paper); color:var(--muted); font-size:12px; position:sticky; top:0; }
+  table.matrix td.date-cell, table.matrix th.date-head {
+    position:sticky; left:0; background:var(--paper); font-weight:700; text-align:left; z-index:1;
+  }
+  .cell-count { font-weight:700; font-size:13px; }
+  .cell-progress { font-size:11px; color:var(--muted); margin-top:2px; }
+  .cell-empty .cell-count { color:#ccc; font-weight:400; }
+
+  .empty-state { color:var(--muted); font-size:14px; text-align:center; padding:24px 0; }
+  .loading-state { color:var(--muted); font-size:14px; text-align:center; padding:24px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="dashboard.html" class="back-link">← 学習の記録に戻る</a>
+  <div class="logo-deco">Study Calendar</div>
+  <h1>学習<span>カレンダー</span></h1>
+
+  <div class="unit-tabs" id="unit-tabs"></div>
+
+  <div id="content">
+    <div class="loading-state">読み込み中...</div>
+  </div>
+</div>
+
+<script src="shared/config.js"></script>
+<script src="shared/api-client.js"></script>
+<script>
+const UNIT_META = {
+  pref: { name: '都道府県クイズ', icon: '🗾' },
+  society: { name: '社会クイズ', icon: '🌾' },
+  astronomy: { name: '天体クイズ', icon: '🌌' },
+};
+// 各単元の「question_id → カテゴリ」を引くためのデータファイル。
+// 新しい単元を追加したら、ここにも1行足す（そのファイルはグローバルに QUESTIONS を用意すること）
+const UNIT_CATEGORY_SRC = {
+  pref: 'units/pref/categories.js',
+  society: 'units/society/data.js',
+};
+
+// data.js / categories.js を隔離実行して、そこで定義される QUESTIONS を取り出す
+// （複数の単元ファイルを同じページで読み込んでも `const QUESTIONS` の再宣言エラーにならないようにする）
+async function loadUnitQuestions(unitId) {
+  const src = UNIT_CATEGORY_SRC[unitId];
+  if (!src) return [];
+  try {
+    const res = await fetch(src);
+    const code = await res.text();
+    const runner = new Function(
+      'window',
+      code + '\n;return (typeof QUESTIONS !== "undefined" && QUESTIONS) ? QUESTIONS : window.QUESTIONS;'
+    );
+    return runner({}) || [];
+  } catch (e) {
+    console.warn('カテゴリデータの読み込みに失敗:', unitId, e);
+    return [];
+  }
+}
+
+function buildCategoryData(questions) {
+  const map = {};
+  const totals = {};
+  questions.forEach(q => {
+    if (!q || q.id === undefined || !q.category) return;
+    map[q.id] = q.category;
+    totals[q.category] = (totals[q.category] || 0) + 1;
+  });
+  return { map, totals };
+}
+
+// 日付×カテゴリのマトリクスを組み立てる。進捗はその日までの累積習得率。
+function computeMatrix(entries, categoryMap, categoryTotals) {
+  const dates = [...new Set(entries.map(e => e.date))].sort();
+  const categories = Object.keys(categoryTotals);
+  const masteredSoFar = {};
+  categories.forEach(c => { masteredSoFar[c] = new Set(); });
+
+  const rows = dates.map(date => {
+    const todays = entries.filter(e => e.date === date);
+    const dayCounts = {};
+    todays.forEach(e => {
+      const cat = categoryMap[e.question_id];
+      if (!cat) return;
+      dayCounts[cat] = (dayCounts[cat] || 0) + 1;
+      if (e.result === 'correct') masteredSoFar[cat].add(e.question_id);
+    });
+    const cells = {};
+    categories.forEach(cat => {
+      cells[cat] = {
+        count: dayCounts[cat] || 0,
+        mastered: masteredSoFar[cat].size,
+        total: categoryTotals[cat] || 0,
+      };
+    });
+    return { date, cells };
+  });
+
+  return { dates, categories, rows };
+}
+
+let currentUnit = null;
+
+async function init() {
+  let units = [];
+  try {
+    units = await QuizAPI.getUnitsSummary();
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      `<div class="empty-state">データの取得に失敗しました。<br><small>${e}</small></div>`;
+    return;
+  }
+
+  if (units.length === 0) {
+    document.getElementById('content').innerHTML =
+      '<div class="empty-state">まだ学習記録がありません。クイズに挑戦すると、ここに記録が表示されます。</div>';
+    return;
+  }
+
+  units.sort((a, b) => (b.last_studied || '').localeCompare(a.last_studied || ''));
+  renderTabs(units);
+  await selectUnit(units[0].unit_id);
+}
+
+function renderTabs(units) {
+  const tabsEl = document.getElementById('unit-tabs');
+  tabsEl.innerHTML = '';
+  units.forEach(u => {
+    const meta = UNIT_META[u.unit_id] || { name: u.unit_id, icon: '📘' };
+    const btn = document.createElement('button');
+    btn.className = 'unit-tab';
+    btn.textContent = `${meta.icon} ${meta.name}`;
+    btn.onclick = () => selectUnit(u.unit_id, btn);
+    tabsEl.appendChild(btn);
+  });
+}
+
+async function selectUnit(unitId, btnEl) {
+  currentUnit = unitId;
+  document.querySelectorAll('.unit-tab').forEach(b => b.classList.remove('selected'));
+  if (btnEl) {
+    btnEl.classList.add('selected');
+  } else {
+    const meta = UNIT_META[unitId] || { name: unitId };
+    [...document.querySelectorAll('.unit-tab')].forEach(b => {
+      if (b.textContent.includes(meta.name)) b.classList.add('selected');
+    });
+  }
+
+  document.getElementById('content').innerHTML = '<div class="loading-state">読み込み中...</div>';
+
+  let logData, questions;
+  try {
+    [logData, questions] = await Promise.all([
+      QuizAPI.getAnswerLog(unitId),
+      loadUnitQuestions(unitId),
+    ]);
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<div class="empty-state">取得に失敗しました。<br><small>${e}</small></div>`;
+    return;
+  }
+
+  renderContent(logData.entries || [], questions);
+}
+
+function renderContent(entries, questions) {
+  const content = document.getElementById('content');
+
+  if (entries.length === 0) {
+    content.innerHTML = '<div class="empty-state">まだプレイ記録がありません</div>';
+    return;
+  }
+
+  const { map: categoryMap, totals: categoryTotals } = buildCategoryData(questions);
+  const { dates, categories, rows } = computeMatrix(entries, categoryMap, categoryTotals);
+
+  const studyDays = dates.length;
+  const totalAnswers = entries.length;
+  const totalMastered = categories.reduce((sum, c) => sum + (rows.length ? rows[rows.length - 1].cells[c].mastered : 0), 0);
+  const totalQuestions = categories.reduce((sum, c) => sum + categoryTotals[c], 0);
+
+  content.innerHTML = `
+    <div class="summary-cards">
+      <div class="summary-card"><div class="num">${totalAnswers}</div><div class="label">全体の学習回数</div></div>
+      <div class="summary-card"><div class="num">${studyDays}</div><div class="label">学習した日数</div></div>
+      <div class="summary-card"><div class="num">${totalMastered}<span style="font-size:14px;">/${totalQuestions}</span></div><div class="label">習得した問題数</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">日付 × カテゴリ</div>
+      <div class="section-note">マスの中は「その日に解いた回数」と「そのカテゴリの累積習得数（習得数/全問題数）」</div>
+      <div id="matrix-wrap"></div>
+    </div>
+  `;
+
+  document.getElementById('matrix-wrap').innerHTML = renderMatrixTable(dates, categories, rows);
+}
+
+function renderMatrixTable(dates, categories, rows) {
+  // 新しい日付が上に来るように表示順は反転する（計算は古い→新しい順のまま）
+  const displayRows = [...rows].reverse();
+
+  const headerCells = categories.map(c => `<th>${c}</th>`).join('');
+  const bodyRows = displayRows.map(row => {
+    const cells = categories.map(cat => {
+      const cell = row.cells[cat];
+      const ratio = cell.total > 0 ? cell.mastered / cell.total : 0;
+      const bg = `rgba(200,75,49,${(0.06 + ratio * 0.35).toFixed(3)})`;
+      const emptyClass = cell.count === 0 ? ' cell-empty' : '';
+      return `
+        <td class="${emptyClass}" style="background:${bg}">
+          <div class="cell-count">${cell.count > 0 ? cell.count + '回' : '-'}</div>
+          <div class="cell-progress">${cell.mastered}/${cell.total}</div>
+        </td>
+      `;
+    }).join('');
+    return `<tr><td class="date-cell">${row.date}</td>${cells}</tr>`;
+  }).join('');
+
+  return `
+    <table class="matrix">
+      <thead><tr><th class="date-head">日付</th>${headerCells}</tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>
