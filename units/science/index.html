@@ -63,6 +63,7 @@
   .progress-fill { height:100%; background:var(--accent); border-radius:999px; transition:width .4s ease; }
   .question-card { width:100%; background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:24px 24px 18px; text-align:center; box-shadow:0 4px 24px rgba(26,26,46,.06); }
   .question-tag { display:inline-block; font-size:12px; font-weight:700; letter-spacing:.15em; color:var(--accent); background:#fff5f3; padding:5px 14px; border-radius:999px; margin-bottom:12px; }
+  .question-image { display:block; max-width:100%; max-height:240px; object-fit:contain; margin:0 auto 14px; }
   .question-text { font-family:'Kaisei Decol',serif; font-size:clamp(18px,2.6vw,24px); font-weight:700; line-height:1.5; }
   .choices { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .choice-btn { background:var(--card); border:2px solid var(--border); border-radius:14px; padding:16px 12px; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; color:var(--ink); cursor:pointer; transition:all .15s; text-align:center; line-height:1.3; }
@@ -70,6 +71,8 @@
   .choice-btn.correct { border-color:var(--correct); background:#d8f3dc; color:var(--correct); }
   .choice-btn.wrong { border-color:var(--wrong); background:#ffe5e0; color:var(--wrong); }
   .choice-btn:disabled { cursor:default; }
+  .choice-btn.choice-img { padding:8px; }
+  .choice-btn.choice-img img { display:block; width:100%; height:90px; object-fit:contain; }
   .feedback-card { width:100%; border-radius:14px; padding:16px 20px; text-align:center; animation:su .3s ease; }
   @keyframes su { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
   .feedback-card.correct-fb { background:#d8f3dc; border:1.5px solid #52b788; }
@@ -147,6 +150,7 @@
 
   <div class="question-card">
     <div class="question-tag" id="question-tag">理科</div>
+    <img id="question-image" class="question-image" style="display:none" alt="問題の図">
     <div class="question-text" id="question-text">問題文がここに入ります</div>
   </div>
 
@@ -250,6 +254,8 @@ async function startQuiz(){
   renderQuestion();
 }
 
+function isImagePath(v){ return typeof v === 'string' && /\.(png|jpe?g|gif|svg)$/i.test(v); }
+
 function renderQuestion(){
   const q = questions[currentIndex], total = questions.length;
   document.getElementById('q-counter').textContent = `${currentIndex+1} / ${total}`;
@@ -258,12 +264,28 @@ function renderQuestion(){
   document.getElementById('question-tag').textContent = q.category || '理科';
   document.getElementById('question-text').textContent = q.question;
 
+  const qImg = document.getElementById('question-image');
+  if (q.questionImage) {
+    qImg.src = q.questionImage;
+    qImg.style.display = 'block';
+  } else {
+    qImg.style.display = 'none';
+    qImg.removeAttribute('src');
+  }
+
   const choices = shuffle(q.choices);
   const choicesEl = document.getElementById('choices');
   choicesEl.innerHTML = '';
   choices.forEach(c => {
     const btn = document.createElement('button');
-    btn.className = 'choice-btn'; btn.textContent = c;
+    btn.className = 'choice-btn';
+    if (isImagePath(c)) {
+      btn.classList.add('choice-img');
+      btn.innerHTML = `<img src="${c}" alt="選択肢の図">`;
+    } else {
+      btn.textContent = c;
+    }
+    btn.dataset.value = c;
     btn.onclick = () => handleAnswer(btn, c, q);
     choicesEl.appendChild(btn);
   });
@@ -275,17 +297,18 @@ function handleAnswer(btn, selected, q){
   document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
   const isCorrect = selected === q.answer;
   const fb = document.getElementById('feedback-area');
+  const answerText = q.answerLabel || q.answer;
 
   if(isCorrect){
     btn.classList.add('correct'); correctCount++;
     answerLog.push({ question_id: q.id, question_label: q.question, mode: q.round || '', result: 'correct' });
-    fb.innerHTML = `<div class="feedback-card correct-fb"><div class="feedback-emoji">⭕</div><div class="feedback-main">正解！</div><div class="feedback-sub"><strong>${q.answer}</strong></div></div>`;
+    fb.innerHTML = `<div class="feedback-card correct-fb"><div class="feedback-emoji">⭕</div><div class="feedback-main">正解！</div><div class="feedback-sub"><strong>${answerText}</strong></div></div>`;
   } else {
     btn.classList.add('wrong');
-    document.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');});
+    document.querySelectorAll('.choice-btn').forEach(b=>{if(b.dataset.value===q.answer)b.classList.add('correct');});
     answerLog.push({ question_id: q.id, question_label: q.question, mode: q.round || '', result: 'wrong' });
     wrongList.push(q);
-    fb.innerHTML = `<div class="feedback-card wrong-fb"><div class="feedback-emoji">❌</div><div class="feedback-main">不正解…</div><div class="feedback-sub">正解は <strong>${q.answer}</strong> でした</div></div>`;
+    fb.innerHTML = `<div class="feedback-card wrong-fb"><div class="feedback-emoji">❌</div><div class="feedback-main">不正解…</div><div class="feedback-sub">正解は <strong>${answerText}</strong> でした</div></div>`;
   }
   document.getElementById('next-btn').style.display = 'block';
   document.getElementById('next-btn').textContent = currentIndex+1 >= questions.length ? '結果を見る →' : '次の問題 →';
@@ -326,7 +349,7 @@ function showResult(){
   const ws = document.getElementById('weak-section');
   if(wrongList.length > 0){
     ws.style.display = 'block';
-    document.getElementById('weak-list').innerHTML = wrongList.map(q=>`<span class="weak-tag">${q.answer}</span>`).join('');
+    document.getElementById('weak-list').innerHTML = wrongList.map(q=>`<span class="weak-tag">${q.answerLabel || q.answer}</span>`).join('');
   } else { ws.style.display = 'none'; }
 }
 

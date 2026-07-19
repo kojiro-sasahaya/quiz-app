@@ -2,6 +2,13 @@
 // ROUND_1 は「範囲を選ぶ」フィルタに使うラベル。今回は分けずに全問同じラベルにしている。
 //
 // category は学習カレンダー（date × category のマトリクス）の列に直接使われる。
+//
+// 画像対応（science単元の拡張）:
+// - questionImage: 問題文の上に表示する図（'images/xxx.png'）。省略可。
+// - choices: 通常は文字列だが、'images/xxx.png' のような画像パスを入れると
+//   選択肢が画像ボタンとして表示される（index.html側で拡張子を見て自動判定）。
+// - answer: choicesの中の1つと一致する値（画像パスの場合は画像パス自体）。
+// - answerLabel: answerが画像パスのとき、正誤フィードバックに表示する人が読める説明文。
 const ROUND_1 = '基本';
 
 const QUESTIONS = [
@@ -260,5 +267,157 @@ const QUESTIONS = [
     question: '虫めがねを通った太陽の光が１点に集まってできる、非常に明るく熱くなる点のことを何といいますか。',
     answer: '焦点',
     choices: ['焦点', '頂点', '反射点', '中心点'],
+  },
+  {
+    id: 'science-28',
+    round: ROUND_1,
+    category: '磁石',
+    questionImage: 'images/mag-fig1.png',
+    question: '（図）のように、ゴム磁石のまわりのAの位置に方位磁針を置くと、針はどのようになりますか。方位磁針の絵は、どれも上が北の向きです。',
+    answer: 'images/mag-choice-w.png',
+    answerLabel: 'N極が西を向く',
+    choices: [
+      'images/mag-choice-n.png',
+      'images/mag-choice-e.png',
+      'images/mag-choice-s.png',
+      'images/mag-choice-w.png',
+    ],
+  },
+  {
+    id: 'science-29',
+    round: ROUND_1,
+    category: '磁石',
+    questionImage: 'images/mag-fig1.png',
+    question: '同じ（図）で、Bの位置に方位磁針を置くと、針はどのようになりますか。方位磁針の絵は、どれも上が北の向きです。',
+    answer: 'images/mag-choice-e.png',
+    answerLabel: 'N極が東を向く',
+    choices: [
+      'images/mag-choice-n.png',
+      'images/mag-choice-e.png',
+      'images/mag-choice-s.png',
+      'images/mag-choice-w.png',
+    ],
+  },
+  {
+    id: 'science-30',
+    round: ROUND_1,
+    category: '磁石',
+    questionImage: 'images/mag-fig2.png',
+    question: '（図）のように、ゴム磁石を真ん中で半分に切り、その間のCの位置に方位磁針を置くと、針はどのようになりますか。方位磁針の絵は、どれも上が北の向きです。',
+    answer: 'images/mag-choice-w.png',
+    answerLabel: 'N極が西を向く',
+    choices: [
+      'images/mag-choice-n.png',
+      'images/mag-choice-e.png',
+      'images/mag-choice-s.png',
+      'images/mag-choice-w.png',
+    ],
+  },
+  {
+    id: 'science-31',
+    round: ROUND_1,
+    category: '太陽の動き',
+    question: '日の入りのときの、地平線と太陽の位置関係を正しく表している図はどれですか。',
+    answer: 'images/sun-sunset-b.png',
+    answerLabel: '太陽が地平線に半分だけ沈みかけているすがた',
+    choices: [
+      'images/sun-sunset-a.png',
+      'images/sun-sunset-b.png',
+      'images/sun-sunset-c.png',
+      'images/sun-sunset-d.png',
+    ],
+  },
+  {
+    id: 'science-32',
+    round: ROUND_1,
+    category: '太陽の動き',
+    questionImage: 'images/sun-fig1.png',
+    question: '（図）は東京で観測した太陽の通り道を表したもので、あ・い・うは春分・夏至・冬至のいずれかの日の記録です。冬至の日の記録を示しているのはどれですか。',
+    answer: 'う',
+    choices: ['う', 'あ', 'い', '資料だけでは決められない'],
+  },
+  {
+    id: 'science-33',
+    round: ROUND_1,
+    category: '太陽の動き',
+    questionImage: 'images/sun-fig1.png',
+    question: '5月のある日、太陽の南中高度は日に日に高くなっていました（夏至が近づいている）。この日の太陽の通り道は、（図）のどこを通りますか。',
+    answer: 'あといの間',
+    choices: ['あといの間', 'あの外側', 'いとうの間', 'うの内側'],
+  },
+  {
+    id: 'science-34',
+    round: ROUND_1,
+    category: '太陽の動き',
+    questionImage: 'images/sun-shadow-fig2.png',
+    question: '（図）のように地面に8方位をかき、棒を垂直に立てて影のようすを観察しました。この影のようすから、このとき太陽はどの方角にありますか。',
+    answer: '南東',
+    choices: ['南東', '北西', '北東', '南西'],
+  },
+  {
+    id: 'science-35',
+    round: ROUND_1,
+    category: '太陽の動き',
+    questionImage: 'images/sun-shadow-fig2.png',
+    question: '同じ（図）の観察を行った時間帯は、次のうちどれですか。',
+    answer: '午前',
+    choices: ['午前', '午後', '正午', '真夜中'],
+  },
+  {
+    id: 'science-36',
+    round: ROUND_1,
+    category: '光',
+    questionImage: 'images/light-fig1.png',
+    question: '（図）のように、光源装置を使って鏡の点Pに細い光をあてると、光ははね返って矢印のように進みました。角あ〜えのうち、入射角を示しているのはどれですか。',
+    answer: 'い',
+    choices: ['い', 'あ', 'う', 'え'],
+  },
+  {
+    id: 'science-37',
+    round: ROUND_1,
+    category: '光',
+    questionImage: 'images/light-fig1.png',
+    question: '同じ（図）で、反射角を示しているのはどれですか。',
+    answer: 'う',
+    choices: ['う', 'あ', 'い', 'え'],
+  },
+  {
+    id: 'science-38',
+    round: ROUND_1,
+    category: '光',
+    questionImage: 'images/light-fig2.png',
+    question: '（図）は、2つの面が鏡A・Bになっている長方形の部屋を真上から見たようすです。点Xから鏡A上のある点に細い光をあてると、光は鏡A・Bではね返って点Yにとどきました。光をあてたのは、鏡Aの①〜⑤のうちのどの点ですか。',
+    answer: '③',
+    choices: ['③', '①', '②', '④', '⑤'],
+  },
+  {
+    id: 'science-39',
+    round: ROUND_1,
+    category: '光',
+    questionImage: 'images/light-enban-fig.png',
+    question: '（図5）のように、円ばんと白い紙の距離を12cmから6cmに近づけました。このとき、白い紙にできる影はどうなりますか。点線は12cmのときにできた直径5cmの円形の影を示しています。',
+    answer: 'images/light-enban-b.png',
+    answerLabel: '影の大きさは変わらない（もとの5cmのまま）',
+    choices: [
+      'images/light-enban-a.png',
+      'images/light-enban-b.png',
+      'images/light-enban-c.png',
+      'images/light-enban-d.png',
+    ],
+  },
+  {
+    id: 'science-40',
+    round: ROUND_1,
+    category: '光',
+    questionImage: 'images/light-mushi-fig.png',
+    question: '（図6）のように、虫めがねと白い紙の距離を12cmから6cmに近づけました。このとき、白い紙にできる明るい部分はどうなりますか。点線は12cmのときにできた直径5cmの円形の影を示しています。',
+    answer: 'images/light-mushi-ki.png',
+    answerLabel: '12cmのときより大きな明るい部分になる',
+    choices: [
+      'images/light-mushi-ka.png',
+      'images/light-mushi-ki.png',
+      'images/light-mushi-ku.png',
+      'images/light-mushi-ke.png',
+    ],
   },
 ];
