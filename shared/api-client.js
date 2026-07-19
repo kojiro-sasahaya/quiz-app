@@ -27,6 +27,15 @@
     return data; // [{unit_id, total_answers, total_correct, accuracy, last_studied}, ...]
   }
 
+  // 生の回答ログ（日付・question_id・正誤）を取得。学習カレンダーのマトリクス計算に使う
+  async function getAnswerLog(unitId) {
+    const res = await fetch(buildGetUrl({ action: 'log', unit_id: unitId }));
+    if (!res.ok) throw new Error('log fetch failed: ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data; // { unit_id, entries: [{date, question_id, result}, ...] }
+  }
+
   function makeSessionId() {
     if (global.crypto && global.crypto.randomUUID) return global.crypto.randomUUID();
     return 'sess-' + Date.now() + '-' + Math.random().toString(16).slice(2);
@@ -92,5 +101,5 @@
     localStorage.setItem(QUEUE_KEY, JSON.stringify(remaining));
   }
 
-  global.QuizAPI = { getStats, getUnitsSummary, submitSession, flushQueue };
+  global.QuizAPI = { getStats, getUnitsSummary, submitSession, flushQueue, getAnswerLog };
 })(window);
