@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社会マスター</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #faf7f0;
+    --accent: #c84b31;
+    --muted: #8a8070;
+    --correct: #2d6a4f;
+    --wrong: #c84b31;
+    --card: #fff;
+    --border: #e0d8c8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(200,75,49,0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(212,160,23,0.06) 0%, transparent 50%);
+  }
+  .screen { display: none; min-height: 100vh; padding: 24px 16px; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .back-link { display:inline-block; font-size:13px; color:var(--muted); text-decoration:none; margin-bottom:8px; }
+  .back-link:hover { color:var(--ink); }
+
+  /* TOP */
+  #screen-top { text-align: center; gap: 16px; }
+  .logo-deco { font-family:'Kaisei Decol',serif; font-size:12px; letter-spacing:.3em; color:var(--muted); margin-bottom:4px; }
+  h1 { font-family:'Kaisei Decol',serif; font-size:clamp(26px,4vw,40px); font-weight:700; line-height:1.1; }
+  h1 span { color:var(--accent); }
+  .subtitle { font-size:13px; color:var(--muted); margin-top:4px; letter-spacing:.1em; }
+  .mode-section { width:100%; max-width:700px; }
+  .mode-label { font-size:13px; font-weight:700; letter-spacing:.15em; color:var(--muted); text-align:left; margin-bottom:10px; }
+  .count-section { margin-bottom:16px; }
+  .count-options { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  .count-btn { padding:8px 22px; border:2px solid var(--border); border-radius:999px; background:var(--card); font-family:'Noto Sans JP',sans-serif; font-size:14px; font-weight:700; color:var(--ink); cursor:pointer; transition:all .2s; }
+  .count-btn:hover { border-color:var(--accent); }
+  .count-btn.selected { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .round-section { margin-bottom:16px; }
+  .round-options { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+  .round-btn { padding:8px 16px; border:2px solid var(--border); border-radius:999px; background:var(--card); font-family:'Noto Sans JP',sans-serif; font-size:13px; font-weight:700; color:var(--muted); cursor:pointer; transition:all .2s; }
+  .round-btn:hover { border-color:var(--accent); color:var(--ink); }
+  .round-btn.selected { background:var(--ink); border-color:var(--ink); color:#fff; }
+  .round-btn.all.selected { background:var(--accent); border-color:var(--accent); }
+  .start-btn { background:var(--ink); color:var(--paper); border:none; border-radius:14px; padding:16px 48px; font-family:'Kaisei Decol',serif; font-size:18px; font-weight:700; cursor:pointer; width:100%; max-width:300px; position:relative; overflow:hidden; transition:all .2s; }
+  .start-btn::after { content:''; position:absolute; inset:0; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform .3s ease; z-index:0; }
+  .start-btn:hover::after { transform:scaleX(1); }
+  .start-btn span { position:relative; z-index:1; }
+
+  /* QUIZ */
+  #screen-quiz { gap: 16px; max-width: 560px; width: 100%; margin: 0 auto; justify-content: flex-start; padding-top: 20px; align-items: stretch; }
+  .progress-area { width:100%; }
+  .progress-meta { display:flex; justify-content:space-between; font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:500; }
+  .progress-bar { height:5px; background:var(--border); border-radius:999px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--accent); border-radius:999px; transition:width .4s ease; }
+  .question-card { width:100%; background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:24px 24px 18px; text-align:center; box-shadow:0 4px 24px rgba(26,26,46,.06); }
+  .question-tag { display:inline-block; font-size:12px; font-weight:700; letter-spacing:.15em; color:var(--accent); background:#fff5f3; padding:5px 14px; border-radius:999px; margin-bottom:12px; }
+  .question-text { font-family:'Kaisei Decol',serif; font-size:clamp(18px,2.6vw,24px); font-weight:700; line-height:1.5; }
+  .choices { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .choice-btn { background:var(--card); border:2px solid var(--border); border-radius:14px; padding:16px 12px; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; color:var(--ink); cursor:pointer; transition:all .15s; text-align:center; line-height:1.3; }
+  .choice-btn:hover:not(:disabled) { border-color:var(--accent); background:#fff5f3; transform:translateY(-1px); }
+  .choice-btn.correct { border-color:var(--correct); background:#d8f3dc; color:var(--correct); }
+  .choice-btn.wrong { border-color:var(--wrong); background:#ffe5e0; color:var(--wrong); }
+  .choice-btn:disabled { cursor:default; }
+  .feedback-card { width:100%; border-radius:14px; padding:16px 20px; text-align:center; animation:su .3s ease; }
+  @keyframes su { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .feedback-card.correct-fb { background:#d8f3dc; border:1.5px solid #52b788; }
+  .feedback-card.wrong-fb { background:#ffe5e0; border:1.5px solid var(--accent); }
+  .feedback-emoji { font-size:26px; margin-bottom:4px; }
+  .feedback-main { font-family:'Kaisei Decol',serif; font-size:20px; font-weight:700; }
+  .feedback-card.correct-fb .feedback-main { color:var(--correct); }
+  .feedback-card.wrong-fb .feedback-main { color:var(--wrong); }
+  .feedback-sub { font-size:15px; margin-top:5px; }
+  .next-btn { width:100%; background:var(--ink); color:var(--paper); border:none; border-radius:12px; padding:17px; font-family:'Noto Sans JP',sans-serif; font-size:17px; font-weight:700; cursor:pointer; transition:opacity .2s; }
+  .next-btn:hover { opacity:.85; }
+
+  /* RESULT */
+  #screen-result { gap:24px; max-width:420px; width:100%; margin:0 auto; text-align:center; }
+  .result-label { font-family:'Kaisei Decol',serif; font-size:15px; letter-spacing:.2em; color:var(--muted); margin-bottom:8px; }
+  .result-score { font-family:'Kaisei Decol',serif; font-size:clamp(64px,15vw,96px); font-weight:700; line-height:1; }
+  .result-score span { font-size:.4em; color:var(--muted); }
+  .result-message { font-size:17px; color:var(--muted); margin-top:8px; }
+  .result-stats { display:flex; gap:16px; width:100%; }
+  .stat-box { flex:1; background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:16px; }
+  .stat-num { font-family:'Kaisei Decol',serif; font-size:36px; font-weight:700; }
+  .stat-num.c { color:var(--correct); }
+  .stat-num.w { color:var(--wrong); }
+  .stat-label { font-size:14px; color:var(--muted); margin-top:4px; }
+  .weak-section { width:100%; text-align:left; }
+  .weak-title { font-size:13px; font-weight:700; letter-spacing:.15em; color:var(--muted); margin-bottom:10px; }
+  .weak-list { display:flex; flex-wrap:wrap; gap:8px; }
+  .weak-tag { background:#ffe5e0; border:1px solid #ffb4a2; color:var(--wrong); border-radius:999px; padding:6px 16px; font-size:13px; font-weight:500; }
+  .result-actions { display:flex; flex-direction:column; gap:10px; width:100%; }
+  .retry-btn { background:var(--accent); color:#fff; border:none; border-radius:12px; padding:18px; font-family:'Noto Sans JP',sans-serif; font-size:17px; font-weight:700; cursor:pointer; transition:opacity .2s; }
+  .retry-btn:hover { opacity:.85; }
+  .home-btn { background:transparent; color:var(--muted); border:1.5px solid var(--border); border-radius:12px; padding:16px; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:500; cursor:pointer; transition:all .2s; }
+  .home-btn:hover { border-color:var(--muted); color:var(--ink); }
+  .reset-btn { background:transparent; color:#bbb; border:none; font-family:'Noto Sans JP',sans-serif; font-size:13px; cursor:pointer; padding:8px; text-decoration:underline; }
+  .reset-btn:hover { color:var(--muted); }
+  .divider { width:48px; height:2px; background:var(--border); border-radius:999px; margin:0 auto; }
+</style>
+</head>
+<body>
+
+<!-- TOP -->
+<div id="screen-top" class="screen active">
+  <div>
+    <a href="../../index.html" class="back-link">← 単元選択に戻る</a>
+    <div class="logo-deco">Social Studies Quiz</div>
+    <h1>社会<span>マスター</span></h1>
+    <p class="subtitle">地形・気候・産業を覚えよう</p>
+  </div>
+  <div class="mode-section">
+    <div class="round-section">
+      <div class="mode-label">範囲を選ぶ（任意）</div>
+      <div class="round-options" id="round-options"></div>
+    </div>
+    <div class="count-section">
+      <div class="mode-label">問題数</div>
+      <div class="count-options">
+        <button class="count-btn" onclick="selectCount(this,10)">10問</button>
+        <button class="count-btn selected" onclick="selectCount(this,20)">20問</button>
+        <button class="count-btn" onclick="selectCount(this,999)">全問</button>
+      </div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()"><span>スタート →</span></button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="progress-area">
+    <div class="progress-meta">
+      <span id="q-counter">1 / 20</span>
+      <span id="q-score">✓ 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="question-card">
+    <div class="question-tag" id="question-tag">社会</div>
+    <div class="question-text" id="question-text">問題文がここに入ります</div>
+  </div>
+
+  <div class="choices" id="choices"></div>
+  <div id="feedback-area"></div>
+  <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()">次の問題 →</button>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div>
+    <div class="result-label">RESULT</div>
+    <div class="result-score" id="result-score">0<span>点</span></div>
+    <div class="result-message" id="result-message"></div>
+  </div>
+  <div class="divider"></div>
+  <div class="result-stats">
+    <div class="stat-box"><div class="stat-num c" id="stat-correct">0</div><div class="stat-label">正解</div></div>
+    <div class="stat-box"><div class="stat-num w" id="stat-wrong">0</div><div class="stat-label">不正解</div></div>
+  </div>
+  <div class="weak-section" id="weak-section" style="display:none">
+    <div class="weak-title">もう一度確認しよう</div>
+    <div class="weak-list" id="weak-list"></div>
+  </div>
+  <div class="result-actions">
+    <button class="retry-btn" onclick="retryQuiz()">もう一度チャレンジ</button>
+    <button class="home-btn" onclick="goHome()">単元トップに戻る</button>
+    <button class="reset-btn" onclick="resetStats()">この端末のキャッシュをリセット</button>
+  </div>
+</div>
+
+<script src="../../shared/config.js"></script>
+<script src="../../shared/api-client.js"></script>
+<script src="../../shared/stats-cache.js"></script>
+<script src="data.js"></script>
+<script>
+// ===== 成績管理（GASスプレッドシート + ローカルキャッシュ） =====
+const UNIT_ID = 'society';
+let statsByQuestion = {};
+
+async function refreshStats() {
+  statsByQuestion = await StatsCache.syncFromServer(UNIT_ID);
+  return statsByQuestion;
+}
+
+function resetStats() {
+  if (!confirm('この端末のキャッシュをリセットしますか？（スプレッドシート上の記録は消えません）')) return;
+  StatsCache.saveCache(UNIT_ID, {});
+  statsByQuestion = {};
+  alert('この端末のキャッシュをリセットしました。');
+}
+
+// ===== 範囲（回）選択 =====
+let selectedRound = 'all';
+
+function initRoundOptions() {
+  const rounds = [...new Set(QUESTIONS.map(q => q.round))];
+  const el = document.getElementById('round-options');
+  el.innerHTML = '';
+  const allBtn = document.createElement('button');
+  allBtn.className = 'round-btn all selected';
+  allBtn.textContent = '📚 すべて';
+  allBtn.onclick = () => selectRound(allBtn, 'all');
+  el.appendChild(allBtn);
+  rounds.forEach(r => {
+    const btn = document.createElement('button');
+    btn.className = 'round-btn';
+    btn.textContent = r;
+    btn.onclick = () => selectRound(btn, r);
+    el.appendChild(btn);
+  });
+}
+
+function selectRound(el, round) {
+  document.querySelectorAll('.round-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRound = round;
+}
+
+function buildQuestionList(count) {
+  const pool = selectedRound === 'all' ? QUESTIONS : QUESTIONS.filter(q => q.round === selectedRound);
+  return StatsCache.buildPriorityList(pool, statsByQuestion, count, 'id');
+}
+
+// ===== クイズ本体 =====
+let questionCount = 20;
+let questions = [], currentIndex = 0, correctCount = 0, wrongList = [];
+let answerLog = [];
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function selectCount(el,n){document.querySelectorAll('.count-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');questionCount=n;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+async function startQuiz(){
+  showScreen('screen-quiz');
+  document.getElementById('choices').innerHTML = '<div style="padding:24px;color:var(--muted);grid-column:1/-1;">読み込み中...</div>';
+  await refreshStats();
+  questions = buildQuestionList(questionCount);
+  currentIndex = 0; correctCount = 0; wrongList = [];
+  answerLog = [];
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const q = questions[currentIndex], total = questions.length;
+  document.getElementById('q-counter').textContent = `${currentIndex+1} / ${total}`;
+  document.getElementById('q-score').textContent = `✓ ${correctCount}`;
+  document.getElementById('progress-fill').style.width = `${(currentIndex/total)*100}%`;
+  document.getElementById('question-tag').textContent = q.category || '社会';
+  document.getElementById('question-text').textContent = q.question;
+
+  const choices = shuffle(q.choices);
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn'; btn.textContent = c;
+    btn.onclick = () => handleAnswer(btn, c, q);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('feedback-area').innerHTML = '';
+  document.getElementById('next-btn').style.display = 'none';
+}
+
+function handleAnswer(btn, selected, q){
+  document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+  const isCorrect = selected === q.answer;
+  const fb = document.getElementById('feedback-area');
+
+  if(isCorrect){
+    btn.classList.add('correct'); correctCount++;
+    answerLog.push({ question_id: q.id, question_label: q.question, mode: q.round || '', result: 'correct' });
+    fb.innerHTML = `<div class="feedback-card correct-fb"><div class="feedback-emoji">⭕</div><div class="feedback-main">正解！</div><div class="feedback-sub"><strong>${q.answer}</strong></div></div>`;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');});
+    answerLog.push({ question_id: q.id, question_label: q.question, mode: q.round || '', result: 'wrong' });
+    wrongList.push(q);
+    fb.innerHTML = `<div class="feedback-card wrong-fb"><div class="feedback-emoji">❌</div><div class="feedback-main">不正解…</div><div class="feedback-sub">正解は <strong>${q.answer}</strong> でした</div></div>`;
+  }
+  document.getElementById('next-btn').style.display = 'block';
+  document.getElementById('next-btn').textContent = currentIndex+1 >= questions.length ? '結果を見る →' : '次の問題 →';
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex >= questions.length){ commitStats(); showResult(); }
+  else { renderQuestion(); }
+}
+
+function commitStats() {
+  if (answerLog.length === 0) return;
+  QuizAPI.submitSession(UNIT_ID, answerLog);
+
+  answerLog.forEach(a => {
+    const key = a.question_id;
+    if (!statsByQuestion[key]) {
+      statsByQuestion[key] = { question_id: key, total: 0, correct: 0, streak_wrong: 0, last_answered: null };
+    }
+    const s = statsByQuestion[key];
+    s.total += 1;
+    if (a.result === 'correct') { s.correct += 1; s.streak_wrong = 0; }
+    else { s.streak_wrong += 1; }
+    s.last_answered = new Date().toISOString().slice(0,10);
+  });
+  StatsCache.saveCache(UNIT_ID, statsByQuestion);
+}
+
+function showResult(){
+  showScreen('screen-result');
+  const total = questions.length, pct = Math.round((correctCount/total)*100);
+  document.getElementById('result-score').innerHTML = `${pct}<span>点</span>`;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-wrong').textContent = total - correctCount;
+  const msg = pct===100?'完璧！全問正解！🎉':pct>=80?'すごい！もう少しで完璧！':pct>=60?'いい感じ。苦手なところを復習しよう':pct>=40?'あともう少し。一緒に覚えよう！':'まだまだこれから。繰り返し挑戦しよう！';
+  document.getElementById('result-message').textContent = msg;
+  const ws = document.getElementById('weak-section');
+  if(wrongList.length > 0){
+    ws.style.display = 'block';
+    document.getElementById('weak-list').innerHTML = wrongList.map(q=>`<span class="weak-tag">${q.answer}</span>`).join('');
+  } else { ws.style.display = 'none'; }
+}
+
+function retryQuiz(){ startQuiz(); }
+function goHome(){ showScreen('screen-top'); }
+
+window.addEventListener('load', () => { initRoundOptions(); refreshStats(); QuizAPI.flushQueue(); });
+</script>
+</body>
+</html>
