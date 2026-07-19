@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>まなびクイズ</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #faf7f0;
+    --accent: #c84b31;
+    --muted: #8a8070;
+    --card: #fff;
+    --border: #e0d8c8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(200,75,49,0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(212,160,23,0.06) 0%, transparent 50%);
+  }
+  .logo-deco { font-family:'Kaisei Decol',serif; font-size:12px; letter-spacing:.3em; color:var(--muted); margin-bottom:6px; text-align:center; }
+  h1 { font-family:'Kaisei Decol',serif; font-size:clamp(28px,5vw,40px); font-weight:700; text-align:center; }
+  h1 span { color:var(--accent); }
+  .subtitle { font-size:13px; color:var(--muted); margin-top:6px; margin-bottom:28px; text-align:center; letter-spacing:.05em; }
+
+  .unit-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px; width:100%; max-width:760px; }
+  .unit-card {
+    background:var(--card); border:2px solid var(--border); border-radius:18px; padding:24px 18px;
+    text-align:center; text-decoration:none; color:var(--ink); transition:all .2s; display:block;
+  }
+  .unit-card:hover { border-color:var(--accent); transform:translateY(-3px); box-shadow:0 8px 24px rgba(26,26,46,.08); }
+  .unit-card .icon { font-size:36px; margin-bottom:10px; }
+  .unit-card .name { font-family:'Kaisei Decol',serif; font-size:18px; font-weight:700; }
+  .unit-card .desc { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5; }
+
+  .unit-card.disabled { opacity:.5; cursor:default; pointer-events:none; border-style:dashed; }
+  .unit-card.disabled .name::after { content:'（準備中）'; display:block; font-size:11px; color:var(--muted); font-family:'Noto Sans JP',sans-serif; font-weight:500; margin-top:4px; }
+
+  .dashboard-link {
+    margin-top: 28px; font-size:14px; color:var(--muted); text-decoration:none; border-bottom:1px dashed var(--border); padding-bottom:2px;
+  }
+  .dashboard-link:hover { color:var(--ink); border-color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="logo-deco">Learning Quiz</div>
+  <h1>まなび<span>クイズ</span></h1>
+  <p class="subtitle">単元を選んでスタート</p>
+
+  <div class="unit-grid">
+    <a class="unit-card" href="units/pref/index.html">
+      <div class="icon">🗾</div>
+      <div class="name">都道府県クイズ</div>
+      <div class="desc">47都道府県と県庁所在地を覚えよう</div>
+    </a>
+    <div class="unit-card disabled">
+      <div class="icon">⛰️</div>
+      <div class="name">地理クイズ</div>
+      <div class="desc">川・山・平野などを覚えよう</div>
+    </div>
+    <div class="unit-card disabled">
+      <div class="icon">🌌</div>
+      <div class="name">天体クイズ</div>
+      <div class="desc">星座や星の名前を覚えよう</div>
+    </div>
+  </div>
+
+  <a class="dashboard-link" href="dashboard.html">📊 学習の記録を見る</a>
+</body>
+</html>

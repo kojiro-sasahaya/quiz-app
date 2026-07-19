@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学習ダッシュボード</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #faf7f0;
+    --accent: #c84b31;
+    --muted: #8a8070;
+    --correct: #2d6a4f;
+    --wrong: #c84b31;
+    --card: #fff;
+    --border: #e0d8c8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  .back-link { display:inline-block; font-size:13px; color:var(--muted); text-decoration:none; margin-bottom:14px; }
+  .back-link:hover { color:var(--ink); }
+  .logo-deco { font-family:'Kaisei Decol',serif; font-size:12px; letter-spacing:.3em; color:var(--muted); margin-bottom:4px; }
+  h1 { font-family:'Kaisei Decol',serif; font-size:clamp(24px,4vw,32px); font-weight:700; margin-bottom:18px; }
+  h1 span { color:var(--accent); }
+
+  .unit-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .unit-tab {
+    padding:8px 18px; border:2px solid var(--border); border-radius:999px; background:var(--card);
+    font-size:14px; font-weight:700; color:var(--muted); cursor:pointer; transition:all .2s;
+  }
+  .unit-tab:hover { border-color:var(--accent); }
+  .unit-tab.selected { background:var(--ink); border-color:var(--ink); color:#fff; }
+
+  .summary-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .summary-card { background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:16px; text-align:center; }
+  .summary-card .num { font-family:'Kaisei Decol',serif; font-size:28px; font-weight:700; }
+  .summary-card .label { font-size:12px; color:var(--muted); margin-top:4px; }
+
+  .section { background:var(--card); border:1.5px solid var(--border); border-radius:16px; padding:18px; margin-bottom:18px; }
+  .section-title { font-size:13px; font-weight:700; letter-spacing:.1em; color:var(--muted); margin-bottom:14px; }
+
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--border); }
+  th { color:var(--muted); font-weight:700; font-size:12px; }
+  .tag-danger { color:var(--wrong); font-weight:700; }
+  .tag-ok { color:var(--correct); font-weight:700; }
+  .empty-state { color:var(--muted); font-size:14px; text-align:center; padding:24px 0; }
+  .loading-state { color:var(--muted); font-size:14px; text-align:center; padding:24px 0; }
+
+  canvas { max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html" class="back-link">← 単元選択に戻る</a>
+  <div class="logo-deco">Dashboard</div>
+  <h1>学習の<span>記録</span></h1>
+
+  <div class="unit-tabs" id="unit-tabs"></div>
+
+  <div id="content">
+    <div class="loading-state">読み込み中...</div>
+  </div>
+</div>
+
+<script src="shared/config.js"></script>
+<script src="shared/api-client.js"></script>
+<script>
+// 単元IDから表示名・アイコンを引く（新しい単元を追加したらここにも追記する）
+const UNIT_META = {
+  pref: { name: '都道府県クイズ', icon: '🗾' },
+  geography: { name: '地理クイズ', icon: '⛰️' },
+  astronomy: { name: '天体クイズ', icon: '🌌' },
+};
+
+let currentUnit = null;
+let chartInstance = null;
+
+async function init() {
+  let units = [];
+  try {
+    units = await QuizAPI.getUnitsSummary();
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      `<div class="empty-state">データの取得に失敗しました。config.jsのGAS_URL/API_TOKENを確認してください。<br><small>${e}</small></div>`;
+    return;
+  }
+
+  if (units.length === 0) {
+    document.getElementById('content').innerHTML =
+      '<div class="empty-state">まだ学習記録がありません。クイズに挑戦すると、ここに記録が表示されます。</div>';
+    return;
+  }
+
+  units.sort((a, b) => (b.last_studied || '').localeCompare(a.last_studied || ''));
+  renderTabs(units);
+  await selectUnit(units[0].unit_id);
+}
+
+function renderTabs(units) {
+  const tabsEl = document.getElementById('unit-tabs');
+  tabsEl.innerHTML = '';
+  units.forEach(u => {
+    const meta = UNIT_META[u.unit_id] || { name: u.unit_id, icon: '📘' };
+    const btn = document.createElement('button');
+    btn.className = 'unit-tab';
+    btn.textContent = `${meta.icon} ${meta.name}`;
+    btn.onclick = () => selectUnit(u.unit_id, btn);
+    tabsEl.appendChild(btn);
+  });
+}
+
+async function selectUnit(unitId, btnEl) {
+  currentUnit = unitId;
+  document.querySelectorAll('.unit-tab').forEach(b => b.classList.remove('selected'));
+  if (btnEl) btnEl.classList.add('selected');
+  else {
+    // 初期表示など、対応するタブが分かる場合は選択状態にする
+    [...document.querySelectorAll('.unit-tab')].forEach(b => {
+      const meta = UNIT_META[unitId] || { name: unitId };
+      if (b.textContent.includes(meta.name)) b.classList.add('selected');
+    });
+  }
+
+  document.getElementById('content').innerHTML = '<div class="loading-state">読み込み中...</div>';
+
+  let data;
+  try {
+    data = await QuizAPI.getStats(unitId);
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<div class="empty-state">取得に失敗しました。<br><small>${e}</small></div>`;
+    return;
+  }
+
+  renderContent(data);
+}
+
+function renderContent(data) {
+  const { questions, sessions } = data;
+
+  const totalAnswers = questions.reduce((sum, q) => sum + q.total, 0);
+  const totalCorrect = questions.reduce((sum, q) => sum + q.correct, 0);
+  const accuracy = totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
+  const studyDays = new Set(sessions.map(s => s.timestamp)).size;
+  const unseenCount = questions.filter(q => q.total === 0).length;
+
+  const content = document.getElementById('content');
+  content.innerHTML = `
+    <div class="summary-cards">
+      <div class="summary-card"><div class="num">${accuracy}<span style="font-size:14px;">%</span></div><div class="label">正答率</div></div>
+      <div class="summary-card"><div class="num">${totalAnswers}</div><div class="label">総回答数</div></div>
+      <div class="summary-card"><div class="num">${studyDays}</div><div class="label">学習した日数</div></div>
+      <div class="summary-card"><div class="num">${sessions.length}</div><div class="label">プレイ回数</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">正答率の推移</div>
+      ${sessions.length > 0 ? '<canvas id="accuracy-chart" height="90"></canvas>' : '<div class="empty-state">まだプレイ記録がありません</div>'}
+    </div>
+
+    <div class="section">
+      <div class="section-title">苦手な問題（連続不正解・正答率が低い順）</div>
+      ${renderWeakTable(questions)}
+    </div>
+
+    <div class="section">
+      <div class="section-title">最近のプレイ記録</div>
+      ${renderSessionTable(sessions)}
+    </div>
+  `;
+
+  if (sessions.length > 0) renderChart(sessions);
+}
+
+function renderWeakTable(questions) {
+  const weak = questions
+    .filter(q => q.total > 0)
+    .map(q => ({ ...q, rate: q.correct / q.total }))
+    .sort((a, b) => (b.streak_wrong - a.streak_wrong) || (a.rate - b.rate))
+    .slice(0, 10);
+
+  if (weak.length === 0) return '<div class="empty-state">まだ回答記録がありません</div>';
+
+  const rows = weak.map(q => `
+    <tr>
+      <td>${q.question_label || q.question_id}</td>
+      <td>${q.correct} / ${q.total}</td>
+      <td>${q.streak_wrong > 0 ? `<span class="tag-danger">${q.streak_wrong}連続不正解</span>` : '<span class="tag-ok">OK</span>'}</td>
+      <td>${q.last_answered || '-'}</td>
+    </tr>
+  `).join('');
+
+  return `<table><thead><tr><th>問題</th><th>正解/回答数</th><th>状態</th><th>最終回答日</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderSessionTable(sessions) {
+  if (sessions.length === 0) return '<div class="empty-state">まだプレイ記録がありません</div>';
+  const recent = [...sessions].reverse().slice(0, 10);
+  const rows = recent.map(s => `
+    <tr>
+      <td>${s.timestamp}</td>
+      <td>${s.correct_count} / ${s.question_count}</td>
+      <td>${Math.round(s.accuracy * 100)}%</td>
+    </tr>
+  `).join('');
+  return `<table><thead><tr><th>日付</th><th>正解数</th><th>正答率</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderChart(sessions) {
+  const ctx = document.getElementById('accuracy-chart');
+  if (!ctx) return;
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: sessions.map(s => s.timestamp),
+      datasets: [{
+        label: '正答率(%)',
+        data: sessions.map(s => Math.round(s.accuracy * 100)),
+        borderColor: '#c84b31',
+        backgroundColor: 'rgba(200,75,49,0.1)',
+        tension: 0.3,
+        fill: true,
+      }],
+    },
+    options: {
+      scales: { y: { min: 0, max: 100 } },
+      plugins: { legend: { display: false } },
+    },
+  });
+}
+
+init();
+</script>
+</body>
+</html>
