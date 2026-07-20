@@ -54,6 +54,10 @@
   .start-btn::after { content:''; position:absolute; inset:0; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform .3s ease; z-index:0; }
   .start-btn:hover::after { transform:scaleX(1); }
   .start-btn span { position:relative; z-index:1; }
+  .test-mode-row { display:flex; align-items:center; justify-content:center; gap:8px; margin:2px 0 16px; font-size:13px; color:var(--muted); }
+  .test-mode-row input[type="checkbox"] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; }
+  .test-mode-row label { cursor:pointer; }
+  .test-mode-banner { width:100%; background:#fff8e1; border:1.5px dashed #d4a017; border-radius:12px; padding:8px 14px; font-size:13px; color:#8a6d00; text-align:center; margin-bottom:4px; font-weight:700; }
 
   /* QUIZ */
   #screen-quiz { gap: 16px; max-width: 560px; width: 100%; margin: 0 auto; justify-content: flex-start; padding-top: 20px; align-items: stretch; }
@@ -131,6 +135,10 @@
         <button class="count-btn" onclick="selectCount(this,999)">全問</button>
       </div>
     </div>
+    <div class="test-mode-row">
+      <input type="checkbox" id="test-mode-checkbox" onchange="toggleTestMode(this)">
+      <label for="test-mode-checkbox">🧪 テストモード（今回の記録を保存しない）</label>
+    </div>
     <button class="start-btn" onclick="startQuiz()"><span>スタート →</span></button>
   </div>
 </div>
@@ -144,6 +152,8 @@
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
   </div>
+
+  <div class="test-mode-banner" id="test-mode-banner" style="display:none">🧪 テストモード中：この回の結果は記録されません</div>
 
   <div class="question-card">
     <div class="question-tag" id="question-tag">社会</div>
@@ -231,6 +241,10 @@ function buildQuestionList(count) {
   return StatsCache.buildPriorityList(pool, statsByQuestion, count, 'id');
 }
 
+// ===== テストモード（動作確認用。ONの間はスプレッドシートにも端末キャッシュにも記録しない） =====
+let TEST_MODE = false;
+function toggleTestMode(el) { TEST_MODE = el.checked; }
+
 // ===== クイズ本体 =====
 let questionCount = 20;
 let questions = [], currentIndex = 0, correctCount = 0, wrongList = [];
@@ -242,6 +256,7 @@ function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classL
 
 async function startQuiz(){
   showScreen('screen-quiz');
+  document.getElementById('test-mode-banner').style.display = TEST_MODE ? 'block' : 'none';
   document.getElementById('choices').innerHTML = '<div style="padding:24px;color:var(--muted);grid-column:1/-1;">読み込み中...</div>';
   await refreshStats();
   questions = buildQuestionList(questionCount);
@@ -299,6 +314,7 @@ function nextQuestion(){
 
 function commitStats() {
   if (answerLog.length === 0) return;
+  if (TEST_MODE) return; // テストモード中はスプレッドシート送信も端末キャッシュ更新も行わない
   QuizAPI.submitSession(UNIT_ID, answerLog);
 
   answerLog.forEach(a => {
@@ -322,7 +338,7 @@ function showResult(){
   document.getElementById('stat-correct').textContent = correctCount;
   document.getElementById('stat-wrong').textContent = total - correctCount;
   const msg = pct===100?'完璧！全問正解！🎉':pct>=80?'すごい！もう少しで完璧！':pct>=60?'いい感じ。苦手なところを復習しよう':pct>=40?'あともう少し。一緒に覚えよう！':'まだまだこれから。繰り返し挑戦しよう！';
-  document.getElementById('result-message').textContent = msg;
+  document.getElementById('result-message').textContent = msg + (TEST_MODE ? '（🧪テストモードのため記録されていません）' : '');
   const ws = document.getElementById('weak-section');
   if(wrongList.length > 0){
     ws.style.display = 'block';
