@@ -964,12 +964,12 @@ function commitStats() {
   answerLog.forEach(a => {
     const key = a.question_id;
     if (!statsByQuestion[key]) {
-      statsByQuestion[key] = { question_id: key, total: 0, correct: 0, streak_wrong: 0, last_answered: null };
+      statsByQuestion[key] = { question_id: key, total: 0, correct: 0, streak_wrong: 0, streak_correct: 0, last_answered: null };
     }
     const s = statsByQuestion[key];
     s.total += 1;
-    if (a.result === 'correct') { s.correct += 1; s.streak_wrong = 0; }
-    else { s.streak_wrong += 1; }
+    if (a.result === 'correct') { s.correct += 1; s.streak_wrong = 0; s.streak_correct = (s.streak_correct || 0) + 1; }
+    else { s.streak_wrong += 1; s.streak_correct = 0; }
     s.last_answered = new Date().toISOString().slice(0,10);
   });
   StatsCache.saveCache(UNIT_ID, statsByQuestion);
