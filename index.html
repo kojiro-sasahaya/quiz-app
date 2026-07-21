@@ -34,18 +34,20 @@ h1 { font-family:'Kaisei Decol',serif; font-size:clamp(28px,5vw,40px); font-weig
 h1 span { color:var(--accent); }
 .subtitle { font-size:13px; color:var(--muted); margin-top:6px; margin-bottom:28px; text-align:center; letter-spacing:.05em; }
 
-.unit-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px; width:100%; max-width:760px; }
-.unit-card {
-background:var(--card); border:2px solid var(--border); border-radius:18px; padding:24px 18px;
-text-align:center; text-decoration:none; color:var(--ink); transition:all .2s; display:block;
+.subject-columns { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:24px; width:100%; max-width:640px; }
+.subject-col { display:flex; flex-direction:column; }
+.subject-title { font-family:'Kaisei Decol',serif; font-size:16px; font-weight:700; text-align:center; margin-bottom:12px; }
+.topic-list { display:flex; flex-direction:column; gap:8px; }
+.topic-btn {
+display:flex; align-items:center; gap:12px; background:var(--card); border:2px solid var(--border); border-radius:14px;
+padding:12px 14px; text-decoration:none; color:var(--ink); transition:all .2s;
 }
-.unit-card:hover { border-color:var(--accent); transform:translateY(-3px); box-shadow:0 8px 24px rgba(26,26,46,.08); }
-.unit-card .icon { font-size:36px; margin-bottom:10px; }
-.unit-card .name { font-family:'Kaisei Decol',serif; font-size:18px; font-weight:700; }
-.unit-card .desc { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5; }
-
-.unit-card.disabled { opacity:.5; cursor:default; pointer-events:none; border-style:dashed; }
-.unit-card.disabled .name::after { content:'（準備中）'; display:block; font-size:11px; color:var(--muted); font-family:'Noto Sans JP',sans-serif; font-weight:500; margin-top:4px; }
+.topic-btn:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 6px 18px rgba(26,26,46,.06); }
+.topic-icon { font-size:22px; flex-shrink:0; width:28px; text-align:center; }
+.topic-name { font-size:14px; font-weight:700; flex:1; }
+.topic-arrow { color:var(--muted); font-size:14px; }
+.topic-btn.disabled { opacity:.5; border-style:dashed; pointer-events:none; }
+.topic-btn.disabled .topic-name::after { content:'（準備中）'; font-size:11px; color:var(--muted); font-weight:500; margin-left:6px; }
 
 .dashboard-link {
 margin-top: 28px; font-size:14px; color:var(--muted); text-decoration:none; border-bottom:1px dashed var(--border); padding-bottom:2px;
@@ -58,27 +60,47 @@ margin-top: 28px; font-size:14px; color:var(--muted); text-decoration:none; bord
 <h1>まなび<span>クイズ</span></h1>
 <p class="subtitle">単元を選んでスタート</p>
 
-<div class="unit-grid">
-<a class="unit-card" href="units/pref/index.html">
-<div class="icon">🗾</div>
-<div class="name">都道府県クイズ</div>
-<div class="desc">47都道府県と県庁所在地を覚えよう</div>
+<div class="subject-columns">
+
+<div class="subject-col">
+<div class="subject-title">🌾 社会クイズ</div>
+<div class="topic-list">
+<a class="topic-btn" href="units/pref/index.html">
+<span class="topic-icon">🗾</span><span class="topic-name">都道府県</span><span class="topic-arrow">→</span>
 </a>
-<a class="unit-card" href="units/society/index.html">
-<div class="icon">🌾</div>
-<div class="name">社会クイズ</div>
-<div class="desc">地形・気候・産業を覚えよう</div>
+<a class="topic-btn" href="units/society/index.html?topic=地形">
+<span class="topic-icon">⛰️</span><span class="topic-name">地形</span><span class="topic-arrow">→</span>
 </a>
-<a class="unit-card" href="units/science/index.html">
-<div class="icon">🔬</div>
-<div class="name">理科クイズ</div>
-<div class="desc">天気・生物・光・水のすがたを覚えよう</div>
+<a class="topic-btn" href="units/society/index.html?topic=気候">
+<span class="topic-icon">🌡️</span><span class="topic-name">気候</span><span class="topic-arrow">→</span>
 </a>
-<div class="unit-card disabled">
-<div class="icon">🌌</div>
-<div class="name">天体クイズ</div>
-<div class="desc">星座や星の名前を覚えよう</div>
+<a class="topic-btn" href="units/society/index.html?topic=産業">
+<span class="topic-icon">🏭</span><span class="topic-name">産業</span><span class="topic-arrow">→</span>
+</a>
 </div>
+</div>
+
+<div class="subject-col">
+<div class="subject-title">🔬 理科クイズ</div>
+<div class="topic-list">
+<a class="topic-btn" href="units/science/index.html?topic=天気">
+<span class="topic-icon">🌦️</span><span class="topic-name">天気</span><span class="topic-arrow">→</span>
+</a>
+<a class="topic-btn" href="units/science/index.html?topic=生物">
+<span class="topic-icon">🐞</span><span class="topic-name">生物</span><span class="topic-arrow">→</span>
+</a>
+<a class="topic-btn" href="units/science/index.html?topic=光">
+<span class="topic-icon">💡</span><span class="topic-name">光</span><span class="topic-arrow">→</span>
+</a>
+<a class="topic-btn" href="units/science/index.html?topic=水">
+<span class="topic-icon">💧</span><span class="topic-name">水</span><span class="topic-arrow">→</span>
+</a>
+<a class="topic-btn" href="units/science/index.html?topic=天体">
+<span class="topic-icon">🌌</span><span class="topic-name">天体</span><span class="topic-arrow">→</span>
+</a>
+</div>
+</div>
+
 </div>
 
 <div style="margin-top:28px; display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
