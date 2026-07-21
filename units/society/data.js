@@ -62,9 +62,9 @@ const QUESTIONS = [
   // ===== テーマ1: 四国地方の気候（讃岐平野・高知平野） =====
   { id: 's003-01', round: ROUND_2, category: '気候', question: '香川県が面している海の名は？', answer: '瀬戸内海', choices: ['瀬戸内海', '太平洋', '日本海', '東シナ海'] },
   { id: 's003-02', round: ROUND_2, category: '平野', question: '中国山地と四国山地にはさまれ、雨が少なく水不足になりやすい香川県の平野は？', answer: '讃岐平野', choices: ['讃岐平野', '濃尾平野', '筑紫平野', '越後平野'] },
-  { id: 's003-03', round: ROUND_2, category: '産業', question: '雨の少ない香川県の海岸で、海水を蒸発させてつくっていたものは？（ひらがな2字）', answer: 'しお', choices: ['しお', 'みそ', 'さとう', 'す'] },
+  { id: 's003-03', round: ROUND_2, category: '農業', question: '雨の少ない香川県の海岸で、海水を蒸発させてつくっていたものは？（ひらがな2字）', answer: 'しお', choices: ['しお', 'みそ', 'さとう', 'す'] },
   { id: 's003-04', round: ROUND_2, category: '農業', question: '高知県の海岸沿いに作られる、野菜を早づくりするための施設は？（カタカナ）', answer: 'ビニールハウス', choices: ['ビニールハウス', 'ガラスハウス', 'プラスチックハウス', 'サンルーム'] },
-  { id: 's003-05', round: ROUND_2, category: '都道府県', question: '香川県の県庁所在地は？', answer: '高松市', choices: ['高松市', '松山市', '徳島市', '高知市'] },
+  { id: 's003-05', round: ROUND_2, category: '気候', question: '香川県の県庁所在地は？', answer: '高松市', choices: ['高松市', '松山市', '徳島市', '高知市'] },
   { id: 's003-06', round: ROUND_2, category: '気候', question: '香川県について正しい説明はどれ？', answer: '農作物の育ちが悪くなる日照りの害に悩まされることがある', choices: ['農作物の育ちが悪くなる日照りの害に悩まされることがある', '四国三郎ともよばれる吉野川が流れている', '小麦の生産量が日本一である', '小豆島でパイナップルの栽培がさかんである'] },
   { id: 's003-07', round: ROUND_2, category: '河川', question: '香川用水の水源となっている、高知県にあるダムは？', answer: '早明浦ダム', choices: ['早明浦ダム', '黒部ダム', '奥只見ダム', '佐久間ダム'] },
   { id: 's003-08', round: ROUND_2, category: '気候', question: '高知県の太平洋沖を流れている暖流は？', answer: '黒潮（日本海流）', choices: ['黒潮（日本海流）', '親潮（千島海流）', '対馬海流', 'リマン海流'] },
@@ -74,7 +74,7 @@ const QUESTIONS = [
   { id: 's003-12', round: ROUND_2, category: '気候', question: '高知県（太平洋側）の気候の特徴として正しいのは？', answer: '年間降水量が多く、冬でも比較的あたたかい', choices: ['年間降水量が多く、冬でも比較的あたたかい', '年間降水量が少なく、夏に涼しい', '冬の寒さがきびしく、雪が多い', '一年を通して降水量の変化がほとんどない'] },
 
   // ===== テーマ2: 寒い地域と雪の多い地域（十勝平野・新潟県） =====
-  { id: 's003-13', round: ROUND_2, category: '都道府県', question: '十勝平野の中心都市は？', answer: '帯広市', choices: ['帯広市', '札幌市', '旭川市', '釧路市'] },
+  { id: 's003-13', round: ROUND_2, category: '気候', question: '十勝平野の中心都市は？', answer: '帯広市', choices: ['帯広市', '札幌市', '旭川市', '釧路市'] },
   { id: 's003-14', round: ROUND_2, category: '農業', question: '同じ作物を作り続けることで土地の栄養分が減ったり、病気になったりすることを何という？', answer: '連作障害', choices: ['連作障害', '冷害', '干害', '塩害'] },
   { id: 's003-15', round: ROUND_2, category: '気候', question: '新潟県に冬の大雪をもたらす、季節風がふいてくる方角は？（漢字）', answer: '北西', choices: ['北西', '北東', '南西', '南東'] },
   { id: 's003-16', round: ROUND_2, category: '農業', question: '乳製品をつくるために乳牛を飼う農業を何という？', answer: '酪農', choices: ['酪農', '畜産', '混合農業', '養蚕'] },
@@ -83,24 +83,24 @@ const QUESTIONS = [
   { id: 's003-19', round: ROUND_2, category: '農業', question: '北海道が生産量日本一で、砂糖の原料となる作物は？', answer: 'てんさい', choices: ['てんさい', 'さとうきび', 'とうもろこし', 'だいず'] },
   { id: 's003-20', round: ROUND_2, category: '気候', question: '北海道の太平洋側で、夏に濃霧が発生して気温が上がらず、農作物が育たなくなる被害を何という？', answer: '冷害', choices: ['冷害', '干害', '水害', '塩害'] },
   { id: 's003-21', round: ROUND_2, category: '歴史', question: '新潟県の昔の国の名は？', answer: '越後', choices: ['越後', '越前', '加賀', '佐渡'] },
-  { id: 's003-22', round: ROUND_2, category: '都道府県', question: '佐渡島が属している県は？', answer: '新潟県', choices: ['新潟県', '山形県', '富山県', '石川県'] },
+  { id: 's003-22', round: ROUND_2, category: '地形', question: '佐渡島が属している県は？', answer: '新潟県', choices: ['新潟県', '山形県', '富山県', '石川県'] },
 
   // ===== テーマ3: 九州・沖縄地方 =====
-  { id: 's003-23', round: ROUND_2, category: '都道府県', question: '日本最西端に位置し、晴れた日には台湾が見える島は？', answer: '与那国島', choices: ['与那国島', '石垣島', '宮古島', '西表島'] },
+  { id: 's003-23', round: ROUND_2, category: '地形', question: '日本最西端に位置し、晴れた日には台湾が見える島は？', answer: '与那国島', choices: ['与那国島', '石垣島', '宮古島', '西表島'] },
   { id: 's003-24', round: ROUND_2, category: '歴史', question: '鹿児島県にある2つの半島に使われている、昔の国の名の正しい組み合わせは？', answer: '薩摩・大隅', choices: ['薩摩・大隅', '日向・肥後', '豊前・薩摩', '肥後・大隅'] },
-  { id: 's003-25', round: ROUND_2, category: '都道府県', question: '沖縄県の県庁所在地は？', answer: '那覇市', choices: ['那覇市', '石垣市', '名護市', '浦添市'] },
+  { id: 's003-25', round: ROUND_2, category: '地形', question: '沖縄県の県庁所在地は？', answer: '那覇市', choices: ['那覇市', '石垣市', '名護市', '浦添市'] },
   { id: 's003-26', round: ROUND_2, category: '歴史', question: '約600年前から約140年前まで沖縄にあった王国は？', answer: '琉球王国', choices: ['琉球王国', '大和王権', '薩摩藩', '蝦夷王国'] },
   { id: 's003-27', round: ROUND_2, category: '気候', question: '沖縄について、誤っている説明はどれ？', answer: '本州より1か月ほど早く、9月に梅雨入りします', choices: ['本州より1か月ほど早く、9月に梅雨入りします', '沖縄島は、太平洋と東シナ海に面しています', '冬でもあたたかい気候を利用して電灯を用いたきくの栽培を行っています', '昔の家は、台風の強い風から守るため、家全体を低く建てています'] },
 
   // ===== テーマ4: 都道府県のすがた（中国・四国・近畿） =====
-  { id: 's003-28', round: ROUND_2, category: '都道府県', question: '中国・四国地方で、最も人口が少ない県は？', answer: '鳥取県', choices: ['鳥取県', '島根県', '高知県', '徳島県'] },
-  { id: 's003-29', round: ROUND_2, category: '都道府県', question: '中国・四国地方で、人口が2番目に少ない県の県庁所在地は？', answer: '松江市', choices: ['松江市', '鳥取市', '岡山市', '高知市'] },
-  { id: 's003-30', round: ROUND_2, category: '都道府県', question: '近畿地方について、正しい説明はどれ？', answer: '兵庫県は中国地方の2つの県と接しています', choices: ['兵庫県は中国地方の2つの県と接しています', '大阪府の面積は都道府県の中で3番目に小さいです', '京都府の府庁所在地は神戸市です', '近畿地方には、海に面していない府県はありません'] },
-  { id: 's003-31', round: ROUND_2, category: '都道府県', question: '日本で面積が最も大きい湖がある県は？', answer: '滋賀県', choices: ['滋賀県', '三重県', '京都府', '奈良県'] },
+  { id: 's003-28', round: ROUND_2, category: '地形', question: '中国・四国地方で、最も人口が少ない県は？', answer: '鳥取県', choices: ['鳥取県', '島根県', '高知県', '徳島県'] },
+  { id: 's003-29', round: ROUND_2, category: '地形', question: '中国・四国地方で、人口が2番目に少ない県の県庁所在地は？', answer: '松江市', choices: ['松江市', '鳥取市', '岡山市', '高知市'] },
+  { id: 's003-30', round: ROUND_2, category: '地形', question: '近畿地方について、正しい説明はどれ？', answer: '兵庫県は中国地方の2つの県と接しています', choices: ['兵庫県は中国地方の2つの県と接しています', '大阪府の面積は都道府県の中で3番目に小さいです', '京都府の府庁所在地は神戸市です', '近畿地方には、海に面していない府県はありません'] },
+  { id: 's003-31', round: ROUND_2, category: '地形', question: '日本で面積が最も大きい湖がある県は？', answer: '滋賀県', choices: ['滋賀県', '三重県', '京都府', '奈良県'] },
   { id: 's003-32', round: ROUND_2, category: '地形', question: '日本で面積が最も大きい湖の名は？', answer: '琵琶湖', choices: ['琵琶湖', '霞ヶ浦', 'サロマ湖', '猪苗代湖'] },
 
   // ===== テーマ5: 地形図の読み方 =====
-  { id: 's003-33', round: ROUND_2, category: '地形図', question: '地図記号「卍」が表す建物は？', answer: '寺院', choices: ['寺院', '神社', '博物館', '老人ホーム'] },
-  { id: 's003-34', round: ROUND_2, category: '地形図', question: '建物と杖（つえ）を組み合わせた地図記号が表す施設は？', answer: '老人ホーム', choices: ['老人ホーム', '病院', '保健所', '寺院'] },
-  { id: 's003-35', round: ROUND_2, category: '地形図', question: '縮尺25000分の1の地図上で3cmの長さがあった場合、実際の距離は何mか？', answer: '750m', choices: ['750m', '75m', '7500m', '300m'] },
+  { id: 's003-33', round: ROUND_2, category: '地形', question: '地図記号「卍」が表す建物は？', answer: '寺院', choices: ['寺院', '神社', '博物館', '老人ホーム'] },
+  { id: 's003-34', round: ROUND_2, category: '地形', question: '建物と杖（つえ）を組み合わせた地図記号が表す施設は？', answer: '老人ホーム', choices: ['老人ホーム', '病院', '保健所', '寺院'] },
+  { id: 's003-35', round: ROUND_2, category: '地形', question: '縮尺25000分の1の地図上で3cmの長さがあった場合、実際の距離は何mか？', answer: '750m', choices: ['750m', '75m', '7500m', '300m'] },
 ];
