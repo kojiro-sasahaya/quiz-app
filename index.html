@@ -49,6 +49,8 @@ padding:12px 14px; text-decoration:none; color:var(--ink); transition:all .2s;
 .topic-btn.disabled { opacity:.5; border-style:dashed; pointer-events:none; }
 .topic-btn.disabled .topic-name::after { content:'（準備中）'; font-size:11px; color:var(--muted); font-weight:500; margin-left:6px; }
 
+.topic-progress { display:flex; align-items:center; gap:6px; margin-right:4px; }
+.topic-progress .pct { font-size:12px; font-weight:700; color:var(--muted); min-width:30px; text-align:right; }
 .dashboard-link {
 margin-top: 28px; font-size:14px; color:var(--muted); text-decoration:none; border-bottom:1px dashed var(--border); padding-bottom:2px;
 }
@@ -65,17 +67,17 @@ margin-top: 28px; font-size:14px; color:var(--muted); text-decoration:none; bord
 <div class="subject-col">
 <div class="subject-title">🌾 社会クイズ</div>
 <div class="topic-list">
-<a class="topic-btn" href="units/pref/index.html">
-<span class="topic-icon">🗾</span><span class="topic-name">都道府県</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/pref/index.html" data-unit="pref">
+<span class="topic-icon">🗾</span><span class="topic-name">都道府県</span><span class="topic-progress" data-unit="pref"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/society/index.html?topic=地形">
-<span class="topic-icon">⛰️</span><span class="topic-name">地形</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/society/index.html?topic=地形" data-unit="society" data-topic="地形">
+<span class="topic-icon">⛰️</span><span class="topic-name">地形</span><span class="topic-progress" data-unit="society" data-topic="地形"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/society/index.html?topic=気候">
-<span class="topic-icon">🌡️</span><span class="topic-name">気候</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/society/index.html?topic=気候" data-unit="society" data-topic="気候">
+<span class="topic-icon">🌡️</span><span class="topic-name">気候</span><span class="topic-progress" data-unit="society" data-topic="気候"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/society/index.html?topic=産業">
-<span class="topic-icon">🏭</span><span class="topic-name">産業</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/society/index.html?topic=産業" data-unit="society" data-topic="産業">
+<span class="topic-icon">🏭</span><span class="topic-name">産業</span><span class="topic-progress" data-unit="society" data-topic="産業"></span><span class="topic-arrow">→</span>
 </a>
 </div>
 </div>
@@ -83,26 +85,26 @@ margin-top: 28px; font-size:14px; color:var(--muted); text-decoration:none; bord
 <div class="subject-col">
 <div class="subject-title">🔬 理科クイズ</div>
 <div class="topic-list">
-<a class="topic-btn" href="units/science/index.html?topic=天気">
-<span class="topic-icon">🌦️</span><span class="topic-name">天気</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/science/index.html?topic=天気" data-unit="science" data-topic="天気">
+<span class="topic-icon">🌦️</span><span class="topic-name">天気</span><span class="topic-progress" data-unit="science" data-topic="天気"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/science/index.html?topic=生物">
-<span class="topic-icon">🐞</span><span class="topic-name">生物</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/science/index.html?topic=生物" data-unit="science" data-topic="生物">
+<span class="topic-icon">🐞</span><span class="topic-name">生物</span><span class="topic-progress" data-unit="science" data-topic="生物"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/science/index.html?topic=光">
-<span class="topic-icon">💡</span><span class="topic-name">光</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/science/index.html?topic=光" data-unit="science" data-topic="光">
+<span class="topic-icon">💡</span><span class="topic-name">光</span><span class="topic-progress" data-unit="science" data-topic="光"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/science/index.html?topic=水">
-<span class="topic-icon">💧</span><span class="topic-name">水</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/science/index.html?topic=水" data-unit="science" data-topic="水">
+<span class="topic-icon">💧</span><span class="topic-name">水</span><span class="topic-progress" data-unit="science" data-topic="水"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/science/index.html?topic=天体">
-<span class="topic-icon">🌌</span><span class="topic-name">天体</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/science/index.html?topic=天体" data-unit="science" data-topic="天体">
+<span class="topic-icon">🌌</span><span class="topic-name">天体</span><span class="topic-progress" data-unit="science" data-topic="天体"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/science/index.html?topic=磁石">
-<span class="topic-icon">🧲</span><span class="topic-name">磁石</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/science/index.html?topic=磁石" data-unit="science" data-topic="磁石">
+<span class="topic-icon">🧲</span><span class="topic-name">磁石</span><span class="topic-progress" data-unit="science" data-topic="磁石"></span><span class="topic-arrow">→</span>
 </a>
-<a class="topic-btn" href="units/science/index.html?topic=地層">
-<span class="topic-icon">🪨</span><span class="topic-name">地層</span><span class="topic-arrow">→</span>
+<a class="topic-btn" href="units/science/index.html?topic=地層" data-unit="science" data-topic="地層">
+<span class="topic-icon">🪨</span><span class="topic-name">地層</span><span class="topic-progress" data-unit="science" data-topic="地層"></span><span class="topic-arrow">→</span>
 </a>
 </div>
 </div>
@@ -113,5 +115,128 @@ margin-top: 28px; font-size:14px; color:var(--muted); text-decoration:none; bord
 <a class="dashboard-link" style="margin-top:0;" href="dashboard.html">📊 学習の記録を見る</a>
 <a class="dashboard-link" style="margin-top:0;" href="calendar.html">📅 学習カレンダーを見る</a>
 </div>
+<script src="shared/config.js"></script>
+<script src="shared/api-client.js"></script>
+<script>
+const CATEGORY_TOPIC_SOCIETY = {
+  '盆地':'地形','河川':'地形','海岸':'地形','平野':'地形','地形':'地形','歴史':'地形',
+  '農業':'産業','水産業':'産業','交通':'産業',
+  '気候':'気候','雪国のくらし':'気候'
+};
+const CATEGORY_TOPIC_SCIENCE = {
+  '天気':'天気','こん虫':'生物','春の生物':'生物','光':'光','水のすがた':'水','太陽の動き':'天体','磁石':'磁石','地層':'地層'
+};
+
+function classify(s) {
+  if (!s) return 'none';
+  if ((s.streak_correct || 0) >= 2) return 'green';
+  if ((s.correct || 0) >= 1) return 'orange';
+  return 'none';
+}
+
+function ringSvg(greenFrac, orangeFrac) {
+  const r = 10, C = 2 * Math.PI * r;
+  const seg = (start, frac, color) => {
+    if (frac <= 0) return '';
+    const len = frac * C;
+    return `<circle cx="14" cy="14" r="${r}" fill="none" stroke="${color}" stroke-width="4" stroke-dasharray="${len} ${C - len}" transform="rotate(${start * 360 - 90} 14 14)"/>`;
+  };
+  return `<svg class="ring" width="28" height="28" viewBox="0 0 28 28">
+    <circle cx="14" cy="14" r="${r}" fill="none" stroke="#e0d8c8" stroke-width="4"/>
+    ${seg(0, greenFrac, '#3f9142')}
+    ${seg(greenFrac, orangeFrac, '#c84b31')}
+  </svg>`;
+}
+
+function renderProgress(el, green, orange, total) {
+  if (!total) { el.innerHTML = ''; return; }
+  const greenFrac = green / total;
+  const orangeFrac = orange / total;
+  const pct = Math.round(((green + orange) / total) * 100);
+  el.innerHTML = ringSvg(greenFrac, orangeFrac) + `<span class="pct">${pct}%</span>`;
+}
+
+async function loadQuestions(path) {
+  const res = await fetch(path, { cache: 'no-store' });
+  const code = await res.text();
+  return new Function(code + '; return QUESTIONS;')();
+}
+
+function countTopics(questions, map) {
+  const counts = {};
+  questions.forEach(q => {
+    const topic = map[q.category];
+    if (!topic) return;
+    counts[topic] = (counts[topic] || 0) + 1;
+  });
+  return counts;
+}
+
+function tallyByTopic(questions, map, statsByQ) {
+  const tally = {};
+  questions.forEach(q => {
+    const topic = map[q.category];
+    if (!topic) return;
+    if (!tally[topic]) tally[topic] = { green: 0, orange: 0 };
+    const cls = classify(statsByQ[String(q.id)]);
+    if (cls === 'green') tally[topic].green++;
+    else if (cls === 'orange') tally[topic].orange++;
+  });
+  return tally;
+}
+
+async function initProgress() {
+  const spans = Array.from(document.querySelectorAll('.topic-progress'));
+  if (spans.length === 0) return;
+  try {
+    const [societyQuestions, scienceQuestions] = await Promise.all([
+      loadQuestions('units/society/data.js'),
+      loadQuestions('units/science/data.js'),
+    ]);
+    const [societyStats, scienceStats, prefStats] = await Promise.all([
+      QuizAPI.getStats('society').catch(() => ({ questions: [] })),
+      QuizAPI.getStats('science').catch(() => ({ questions: [] })),
+      QuizAPI.getStats('pref').catch(() => ({ questions: [] })),
+    ]);
+
+    const societyStatsByQ = {};
+    (societyStats.questions || []).forEach(q => { societyStatsByQ[String(q.question_id)] = q; });
+    const scienceStatsByQ = {};
+    (scienceStats.questions || []).forEach(q => { scienceStatsByQ[String(q.question_id)] = q; });
+
+    const societyTotals = countTopics(societyQuestions, CATEGORY_TOPIC_SOCIETY);
+    const scienceTotals = countTopics(scienceQuestions, CATEGORY_TOPIC_SCIENCE);
+    const societyTally = tallyByTopic(societyQuestions, CATEGORY_TOPIC_SOCIETY, societyStatsByQ);
+    const scienceTally = tallyByTopic(scienceQuestions, CATEGORY_TOPIC_SCIENCE, scienceStatsByQ);
+
+    const prefStatsByQ = {};
+    (prefStats.questions || []).forEach(q => { prefStatsByQ[String(q.question_id)] = q; });
+    let prefGreen = 0, prefOrange = 0;
+    Object.values(prefStatsByQ).forEach(q => {
+      const cls = classify(q);
+      if (cls === 'green') prefGreen++;
+      else if (cls === 'orange') prefOrange++;
+    });
+
+    spans.forEach(el => {
+      const unit = el.dataset.unit;
+      const topic = el.dataset.topic;
+      if (unit === 'pref') {
+        renderProgress(el, prefGreen, prefOrange, 47);
+      } else if (unit === 'society') {
+        const t = societyTally[topic] || { green: 0, orange: 0 };
+        renderProgress(el, t.green, t.orange, societyTotals[topic] || 0);
+      } else if (unit === 'science') {
+        const t = scienceTally[topic] || { green: 0, orange: 0 };
+        renderProgress(el, t.green, t.orange, scienceTotals[topic] || 0);
+      }
+    });
+  } catch (e) {
+    console.error('progress load failed', e);
+  }
+}
+
+window.addEventListener('load', initProgress);
+</script>
 </body>
 </html>
