@@ -102,15 +102,17 @@ function getStats(unitId) {
     .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
     .forEach(r => {
       if (!byQuestion[r.question_id]) {
-        byQuestion[r.question_id] = { question_id: r.question_id, question_label: '', total: 0, correct: 0, streak_wrong: 0, last_answered: null };
+        byQuestion[r.question_id] = { question_id: r.question_id, question_label: '', total: 0, correct: 0, streak_wrong: 0, streak_correct: 0, last_answered: null };
       }
       const q = byQuestion[r.question_id];
       q.total += 1;
       if (r.result === 'correct') {
         q.correct += 1;
         q.streak_wrong = 0;
+        q.streak_correct = (q.streak_correct || 0) + 1;
       } else {
         q.streak_wrong += 1;
+        q.streak_correct = 0;
       }
       q.question_label = r.question_label || q.question_label;
       q.last_answered = formatDate(r.timestamp);
