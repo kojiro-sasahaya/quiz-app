@@ -123,7 +123,7 @@
     <a href="../../index.html" class="back-link">← 単元選択に戻る</a>
     <div class="logo-deco">Science Quiz</div>
     <h1>理科<span>クイズ</span></h1>
-    <p class="subtitle">天気・生物・光・水のすがたを覚えよう</p>
+    <p class="subtitle" id="unit-subtitle">天気・生物・光・水のすがたを覚えよう</p>
   </div>
   <div class="mode-section">
     <div class="round-section">
@@ -216,7 +216,18 @@ function resetStats() {
 // ===== 範囲（回）選択 =====
 let selectedRound = 'all';
 
+const CATEGORY_TOPIC = {
+  '天気': '天気', 'こん虫': '生物', '春の生物': '生物', '光': '光', '水のすがた': '水', '太陽の動き': '天体',
+};
+const selectedTopic = new URLSearchParams(location.search).get('topic');
+
 function initRoundOptions() {
+  if (selectedTopic) {
+    document.querySelector('.round-section').style.display = 'none';
+    const sub = document.getElementById('unit-subtitle');
+    if (sub) sub.textContent = selectedTopic + 'の問題';
+    return;
+  }
   const rounds = [...new Set(QUESTIONS.map(q => q.round))];
   const el = document.getElementById('round-options');
   el.innerHTML = '';
@@ -241,7 +252,9 @@ function selectRound(el, round) {
 }
 
 function buildQuestionList(count) {
-  const pool = selectedRound === 'all' ? QUESTIONS : QUESTIONS.filter(q => q.round === selectedRound);
+  const pool = selectedTopic
+    ? QUESTIONS.filter(q => CATEGORY_TOPIC[q.category] === selectedTopic)
+    : (selectedRound === 'all' ? QUESTIONS : QUESTIONS.filter(q => q.round === selectedRound));
   return StatsCache.buildPriorityList(pool, statsByQuestion, count, 'id');
 }
 
